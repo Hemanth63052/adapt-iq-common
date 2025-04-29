@@ -45,4 +45,4 @@ skip-string-normalization = false  # Keep string quotes consistent
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["data", "data.*", 'scripts', 'scripts.*', "app.py", "main.py"]
+include = ["adapt_iq_common", "adapt_iq_common.*"]
