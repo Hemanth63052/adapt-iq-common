@@ -66,3 +66,5 @@ class MongoUtilConstants:
     configurations = "configurations"
     users = "users"
     user_details = "user_details"
+    chats = "chats"
+    llm_data = "llm_data"
