@@ -1,12 +1,14 @@
 import os
 
-from pydantic import Field, model_validator
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-
+from adapt_iq_common.exceptions import GenAIException
 from adapt_iq_common.utils.gcp_secret_manager import get_gcp_secrets
 
+from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings
+
+from dotenv import load_dotenv
 load_dotenv()
+
 
 class _ServerConfig(BaseSettings):
     """
@@ -33,12 +35,24 @@ class _MongoDBConfig(BaseSettings):
 
     MONGODB_URI: str
 
+    @model_validator(mode="before")
+    def validate_mongodb_uri(cls, values):
+        if not values.get("MONGODB_URI"):
+            raise GenAIException("MONGODB_URI is not set in the environment variables.")
+        return values
+
 class _RedisConfig(BaseSettings):
     """
     Redis configuration settings.
     """
 
     REDIS_URI: str
+
+    @model_validator(mode="before")
+    def validate_redis_uri(cls, values):
+        if not values.get("REDIS_URI"):
+            raise GenAIException("REDIS_URI is not set in the environment variables.")
+        return values
 
 class _JWTConfig(BaseSettings):
     """
@@ -62,12 +76,22 @@ class _JWTConfig(BaseSettings):
                 values["PRIVATE_KEY"] = get_rsa_private_key
         return values
 
+class _ProjectConfig(BaseSettings):
+    """
+    Project configuration settings.
+    This class is used to manage project-specific settings and secrets.
+    """
+    PROJECT_ID : str = Field(default="adaptiq-457516")
+    PROJECT_NAME : str = Field(default="AdaptIQ")
+
+
 
 ServerConfig = _ServerConfig()
 LoggingConfig = _LoggingConfig()
 MongoDBConfig = _MongoDBConfig()
 RedisConfig = _RedisConfig()
 JWTConfig = _JWTConfig()
+ProjectConfig = _ProjectConfig()
 
 
-__all__ = ["ServerConfig", "MongoDBConfig", "RedisConfig", "JWTConfig", "LoggingConfig"]
+__all__ = ["ServerConfig", "MongoDBConfig", "RedisConfig", "JWTConfig", "LoggingConfig", "ProjectConfig"]
